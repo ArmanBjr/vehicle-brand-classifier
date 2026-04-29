@@ -1,0 +1,829 @@
+Absolutely. Starting from scratch is the right move here.
+
+Based on the project description, the assignment requires a full classification pipeline for car manufacturer prediction using **SVM** and **Decision Tree**, including preprocessing, hyperparameter tuning, evaluation, and final prediction files. It also explicitly asks for analysis in the document, and mentions that a clean report, for example in LaTeX, can earn extra credit.
+
+I’ll give you two roadmaps:
+
+1. a **complete standard roadmap** that fully satisfies the project
+2. a **full over-marked roadmap** for a stronger, cleaner, more professional submission
+
+---
+
+# 1) Full roadmap for the entire project
+
+This is the roadmap for doing the project properly from beginning to end.
+
+## Phase 0 — Understand the task correctly
+
+Before coding, define the task clearly:
+
+* This is a **supervised multiclass classification** problem
+* Input: car features
+* Output: `Manufacturer`
+* Models required:
+
+  * SVM
+  * Decision Tree
+* Final deliverables:
+
+  * source code
+  * documentation
+  * `label_SVM.csv`
+  * `label_DT.csv`
+
+So the whole project should be built around one clean principle:
+
+**all preprocessing must be done in a way that avoids leakage and keeps train/test handling consistent**
+
+---
+
+## Phase 1 — Project setup
+
+Create a neat folder structure from the beginning. For example:
+
+```text
+project/
+│
+├── data/
+│   ├── train_data.csv
+│   └── test_data.csv
+│
+├── notebooks/
+│   └── project.ipynb
+│
+├── outputs/
+│   ├── figures/
+│   ├── label_SVM.csv
+│   └── label_DT.csv
+│
+├── report/
+│   └── report.tex
+│
+└── src/
+    └── utils.py
+```
+
+This already makes the work look more professional.
+
+---
+
+## Phase 2 — Load and inspect the data
+
+Read both datasets and inspect them carefully.
+
+### What to do
+
+* load `train_data.csv` and `test_data.csv`
+* inspect:
+
+  * shape
+  * column names
+  * data types
+  * first few rows
+  * summary statistics
+  * target class counts
+
+### What to write in the doc
+
+* number of samples in train and test
+* list of features
+* target variable
+* feature types:
+
+  * numerical
+  * categorical
+
+This phase corresponds directly to the project’s request for a general evaluation of the data. 
+
+---
+
+## Phase 3 — Preprocessing
+
+This is the most important part of the whole project.
+
+The assignment explicitly asks for:
+
+* missing data check
+* duplicate detection/removal
+* outlier detection/removal
+* data type checking and encoding
+* normalization/standardization of numerical features
+* class imbalance checking and fixing if needed 
+
+Do them in the following order.
+
+### Step 3.1 — Separate features and target
+
+In train set:
+
+* `X = train_df.drop('Manufacturer', axis=1)`
+* `y = train_df['Manufacturer']`
+
+Test set has no label.
+
+### Step 3.2 — Train/validation split
+
+Do this **before** advanced preprocessing like SMOTE.
+
+Use stratified split:
+
+* 80% train
+* 20% validation
+
+Why:
+
+* avoids leakage
+* preserves class proportions
+
+### Step 3.3 — Missing values
+
+Check missing values in both train and test.
+
+Then:
+
+* if no missing values, explicitly state that
+* if there are missing values:
+
+  * numerical → median imputation
+  * categorical → most frequent imputation
+
+### Step 3.4 — Duplicates
+
+Check duplicate rows in training set.
+
+If duplicates exist:
+
+* remove them from training only
+* report how many were removed
+
+Do not blindly remove duplicates from test.
+
+### Step 3.5 — Outliers
+
+For numerical columns:
+
+* inspect distributions first using boxplots/histograms
+* then decide whether to:
+
+  * remove extreme outliers
+  * or cap them
+
+Better than deleting too much data:
+
+* use IQR carefully only on selected columns
+* or winsorize/cap extreme values
+
+Important:
+Do this only on training data statistics, then apply the same rule to validation/test if needed.
+
+### Step 3.6 — Encoding categorical features
+
+For columns like:
+
+* transmission
+* fuelType
+
+Use:
+
+* **OneHotEncoder** for features
+
+For target:
+
+* **LabelEncoder** for `Manufacturer`
+
+### Step 3.7 — Scaling numerical features
+
+For SVM, scaling is essential.
+For Decision Tree, scaling is not necessary, but it is fine to keep a pipeline consistent.
+
+Use:
+
+* `StandardScaler` for numerical columns
+
+### Step 3.8 — Class imbalance
+
+Check the class distribution of `Manufacturer`.
+
+If imbalance is noticeable:
+
+* apply **SMOTE only on the training split**, never before splitting
+
+This directly answers the assignment’s requirement to check whether classes are balanced and solve the issue if they are not. 
+
+---
+
+## Phase 4 — Build proper ML pipelines
+
+Instead of manual preprocessing in separate loose steps, build pipelines.
+
+### Recommended structure
+
+For both models:
+
+* preprocessing pipeline:
+
+  * numeric → imputer + scaler
+  * categorical → imputer + one-hot encoder
+
+Then:
+
+* model
+
+For SVM:
+
+* preprocessing + SMOTE + SVC
+
+For Decision Tree:
+
+* preprocessing + maybe SMOTE + DecisionTreeClassifier
+
+Best practice:
+
+* use `Pipeline`
+* if using SMOTE inside workflow, use `imblearn.pipeline.Pipeline`
+
+This keeps everything leakage-safe.
+
+---
+
+## Phase 5 — Train baseline models
+
+Train two baseline models first:
+
+* baseline SVM
+* baseline Decision Tree
+
+Evaluate both on the validation set.
+
+### Metrics to compute
+
+The assignment explicitly asks for:
+
+* confusion matrix
+* precision
+* recall
+* F1-score 
+
+So for each model, compute:
+
+* confusion matrix
+* precision
+* recall
+* F1-score
+
+Also compute:
+
+* accuracy
+
+Even if not explicitly required, accuracy is still useful for comparison.
+
+---
+
+## Phase 6 — Hyperparameter tuning
+
+Now improve both models.
+
+The assignment explicitly requires hyperparameter tuning for both SVM and Decision Tree. 
+
+### For SVM tune:
+
+* `C`
+* `kernel`
+* `gamma`
+
+Suggested grid:
+
+* `C = [0.1, 1, 10, 100]`
+* `kernel = ['linear', 'rbf']`
+* `gamma = ['scale', 'auto', 0.01, 0.1, 1]`
+
+### For Decision Tree tune:
+
+* `criterion = ['gini', 'entropy']`
+* `max_depth = [5, 10, 20, None]`
+* `min_samples_split = [2, 5, 10, 20]`
+* `min_samples_leaf = [1, 2, 5, 10]`
+* maybe `max_features`
+
+Use:
+
+* `GridSearchCV` or `RandomizedSearchCV`
+* scoring based on `f1_weighted` or `f1_macro`
+
+I would not tune based only on accuracy.
+
+---
+
+## Phase 7 — Evaluate tuned models properly
+
+After tuning, evaluate both best models on the validation set.
+
+### Report for each model
+
+* confusion matrix
+* precision
+* recall
+* F1-score
+* accuracy
+* classification report
+
+### Also compare
+
+* base vs tuned SVM
+* base vs tuned DT
+* SVM vs DT
+
+Then answer:
+
+* which one is better?
+* why?
+* does one model overfit more?
+* which classes are harder to classify?
+
+This last part is important because the project says the obtained results should be analyzed in the documentation. 
+
+---
+
+## Phase 8 — Final model selection
+
+Choose your final SVM and final DT configurations.
+
+Then retrain each final model on the **full training dataset** using the chosen preprocessing steps.
+
+This means:
+
+* use all available labeled training data
+* keep the exact same pipeline design
+* optionally apply SMOTE only inside the training workflow
+
+---
+
+## Phase 9 — Predict the test set
+
+Use the final trained models to predict `test_data.csv`.
+
+Then decode manufacturer labels back to real names.
+
+Create:
+
+* `label_SVM.csv`
+* `label_DT.csv`
+
+The project clearly requires that predicted values must be manufacturer names, not encoded values. 
+
+Each file should contain something like:
+
+```csv
+Manufacturer
+ford
+bmw
+toyota
+...
+```
+
+Unless the project format expects an index column too.
+
+---
+
+## Phase 10 — Write the documentation
+
+Your report should not just show code output. It should explain the work.
+
+### Suggested report structure
+
+1. Title page
+2. Project objective
+3. Dataset description
+4. Preprocessing
+5. Model training
+6. Hyperparameter tuning
+7. Evaluation results
+8. Final comparison
+9. Test prediction export
+10. Conclusion
+
+Because the assignment mentions bonus for a clean document such as LaTeX, a well-structured report matters. 
+
+---
+
+## Phase 11 — Final check before submission
+
+Before zipping:
+
+* notebook runs from top to bottom
+* CSV outputs exist
+* documentation is included
+* no broken file paths
+* all figures visible
+* final zip name matches student number requirement 
+
+---
+
+# 2) Full detailed roadmap for a full over-marked good project
+
+Now this is the stronger version. This is how to turn the project from “acceptable” into “impressive”.
+
+---
+
+## A. Make the project look professional from the first page
+
+### Do this
+
+* clean title page
+* student names and IDs
+* course name
+* short abstract
+* table of contents
+* numbered sections
+* consistent figure captions
+* clean plots
+
+### Why it matters
+
+Even if the grading is code-focused, presentation changes how your work is perceived.
+
+---
+
+## B. Build the entire project around a leakage-safe pipeline
+
+This is the single most important technical upgrade.
+
+### Your over-marked version should:
+
+* split before SMOTE
+* fit preprocessing only on training folds
+* use pipeline objects
+* use cross-validation properly
+
+### Ideal implementation style
+
+Use:
+
+* `ColumnTransformer`
+* `Pipeline`
+* `GridSearchCV`
+* `StratifiedKFold`
+* `SMOTE` inside an `imblearn` pipeline
+
+That already makes the project look much more mature.
+
+---
+
+## C. Add serious EDA, not just `info()` and `describe()`
+
+A high-quality project should include visual exploration.
+
+### Include at least these figures
+
+* class distribution bar plot for `Manufacturer`
+* histograms for numerical columns
+* boxplots for numerical columns
+* categorical frequency plots for `transmission` and `fuelType`
+* correlation heatmap for numerical features
+
+### In the doc, discuss
+
+* whether classes are imbalanced
+* whether numerical distributions are skewed
+* whether there are suspicious outliers
+* whether some features appear informative
+
+This makes preprocessing choices look justified, not arbitrary.
+
+---
+
+## D. Treat outliers intelligently
+
+A better project does not just blindly delete all IQR outliers.
+
+### Better strategy
+
+* inspect each numerical feature separately
+* decide which columns deserve outlier handling
+* distinguish:
+
+  * rare but valid values
+  * impossible/error values
+
+Example:
+
+* `year = 1970` may be unusual but not impossible
+* `engineSize = 0` might deserve closer inspection
+* extremely high `mpg` could be suspicious
+
+### In the report
+
+Explain why you removed or retained extreme values.
+
+This kind of justification is exactly what makes a project look stronger.
+
+---
+
+## E. Use better metrics for multiclass imbalance
+
+The assignment requires precision, recall, F1, confusion matrix. 
+
+To go beyond minimum requirements, report:
+
+* weighted precision / recall / F1
+* macro precision / recall / F1
+* accuracy
+
+### Why this is stronger
+
+* weighted scores show overall performance
+* macro scores show whether minority classes are being ignored
+
+Then say:
+
+* “Although weighted F1 is high, macro F1 is lower, indicating weaker performance on some minority manufacturers.”
+
+That is the kind of sentence that earns respect.
+
+---
+
+## F. Make hyperparameter tuning more serious
+
+### For SVM
+
+Use a stronger search space:
+
+* `C`
+* `gamma`
+* `kernel`
+* maybe `class_weight`
+
+### For Decision Tree
+
+Use:
+
+* `max_depth`
+* `min_samples_split`
+* `min_samples_leaf`
+* `criterion`
+* maybe `ccp_alpha`
+
+`ccp_alpha` is especially nice if you want to show pruning awareness.
+
+### Even better
+
+State clearly:
+
+* why these parameters matter
+* what overfitting/underfitting means for each model
+
+---
+
+## G. Add cross-validation discussion
+
+A stronger project does not rely only on one validation split.
+
+### Better version
+
+Use:
+
+* cross-validation during tuning
+* one hold-out validation set for final comparison
+
+Then in the doc:
+
+* report mean CV score
+* report final validation score
+* discuss stability
+
+This makes your evaluation more convincing.
+
+---
+
+## H. Compare models analytically, not just numerically
+
+Do not just say “Decision Tree is better because accuracy is higher.”
+
+Say things like:
+
+* Decision Tree achieved higher weighted F1 than SVM on this dataset.
+* SVM may struggle because categorical structure and nonlinear class boundaries are only partially captured after one-hot encoding.
+* Decision Tree may better capture threshold-like rules and mixed feature interactions.
+* However, Decision Tree is more prone to overfitting, so its hyperparameters must be controlled carefully.
+
+That kind of analysis makes the report much stronger.
+
+---
+
+## I. Add class-wise error analysis
+
+This is one of the best upgrades.
+
+### For the final chosen models
+
+Inspect confusion matrices and answer:
+
+* which manufacturers are most often confused?
+* are there brands with similar feature profiles?
+* does the model struggle more on minority classes?
+
+This turns the project from “I ran models” into “I understood the results”.
+
+---
+
+## J. Add feature importance for Decision Tree
+
+This is a very good bonus section.
+
+### Do this
+
+Extract and plot feature importances from the final Decision Tree.
+
+Then discuss:
+
+* which features mattered most
+* maybe `price`, `engineSize`, `year`, `mileage`, or transmission/fuel indicators
+
+This is especially useful because trees are interpretable.
+
+---
+
+## K. Add a pipeline diagram in the report
+
+This looks very polished.
+
+A simple workflow diagram:
+
+```text
+Raw Data
+→ Inspection
+→ Train/Validation Split
+→ Preprocessing
+→ SMOTE on training only
+→ Baseline Models
+→ Hyperparameter Tuning
+→ Evaluation
+→ Final Training
+→ Test Prediction
+→ CSV Export
+```
+
+Very simple, but visually strong.
+
+---
+
+## L. Make the final report look like a mini paper
+
+### Suggested polished structure
+
+* Abstract
+* Introduction
+* Dataset
+* Methodology
+
+  * preprocessing
+  * encoding
+  * scaling
+  * imbalance handling
+  * models
+  * tuning
+* Results
+
+  * baseline
+  * tuned
+  * comparison
+* Discussion
+* Conclusion
+* Appendix
+
+  * parameter grids
+  * classification reports
+
+This is much stronger than a casual notebook dump.
+
+---
+
+## M. Use concise tables
+
+A very strong report usually has tables like these:
+
+### Table 1 — Dataset summary
+
+* train size
+* test size
+* number of features
+* number of classes
+
+### Table 2 — Preprocessing decisions
+
+* duplicates removed
+* missing values found
+* outlier handling method
+* encoding method
+* scaling method
+* imbalance method
+
+### Table 3 — Hyperparameter grids
+
+* SVM grid
+* DT grid
+
+### Table 4 — Final performance
+
+* model
+* accuracy
+* precision weighted
+* recall weighted
+* F1 weighted
+* F1 macro
+
+Tables make the report look much more serious.
+
+---
+
+## N. Export submission files cleanly
+
+For an over-marked submission:
+
+### Include
+
+* notebook
+* maybe `.py` script version
+* report PDF
+* `label_SVM.csv`
+* `label_DT.csv`
+
+### And ensure
+
+* filenames are exactly correct
+* outputs are reproducible
+* code is commented but not messy
+
+---
+
+## O. Final “over-marked” checklist
+
+A project that feels excellent should satisfy all of these:
+
+* clean notebook
+* no leakage
+* justified preprocessing
+* proper train/validation methodology
+* strong tuning
+* full required metrics
+* model comparison
+* result interpretation
+* final prediction CSVs
+* polished LaTeX/PDF report 
+
+---
+
+# Best practical execution plan
+
+If I were doing this project from scratch for a high mark, I would follow this exact order:
+
+## Day 1
+
+* inspect data
+* define feature types
+* split train/validation
+* set up clean preprocessing pipeline
+
+## Day 2
+
+* duplicates, missing values, outlier strategy
+* baseline SVM and DT
+* first evaluation
+
+## Day 3
+
+* hyperparameter tuning
+* compare tuned models
+* confusion matrix and classification reports
+
+## Day 4
+
+* retrain final models on full train data
+* predict test
+* save `label_SVM.csv` and `label_DT.csv`
+
+## Day 5
+
+* write polished report
+* add tables, figures, discussion, conclusion
+* final zip
+
+---
+
+# My recommendation for your specific project
+
+You should rebuild it around this structure:
+
+1. clean EDA
+2. train/validation split first
+3. preprocessing pipeline
+4. SMOTE only on training
+5. baseline models
+6. tuning
+7. full evaluation
+8. final prediction CSVs
+9. polished report
+
+That will fix the main weakness of your current version and make the project much more defensible.
+
+In the next step, I can give you a **concrete section-by-section implementation plan for the notebook**, meaning exactly what code blocks you should write from top to bottom.
