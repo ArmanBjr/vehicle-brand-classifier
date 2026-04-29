@@ -24,3 +24,6 @@ desktop.ini
 
 # Large / unclean raw data
 data/official_dataset/unclean*
+
+# Personal notes / roadmap
+Help.txt

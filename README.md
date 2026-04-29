@@ -7,8 +7,8 @@ Built with **SVM** and **Decision Tree** as part of a Computational Intelligence
 
 | Model | Test Accuracy |
 |---|---|
-| SVM (RBF, C=500) | 72.98% |
-| Decision Tree (depth=20) | 81.90% |
+| SVM (RBF, C=500, gamma=scale) | 73.51% |
+| Decision Tree (entropy, depth=30) | 81.67% |
 
 ## Structure
 
