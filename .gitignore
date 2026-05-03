@@ -27,3 +27,13 @@ data/official_dataset/unclean*
 
 # Personal notes / roadmap
 Help.txt
+
+# LaTeX source and build artifacts (only PDF goes to GitHub)
+report/*.tex
+report/*.aux
+report/*.log
+report/*.toc
+report/*.out
+report/*.synctex.gz
+report/fonts/
+report/assets/
