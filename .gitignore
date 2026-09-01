@@ -25,8 +25,21 @@ desktop.ini
 # Large / unclean raw data
 data/official_dataset/unclean*
 
-# Personal notes / roadmap
+# Personal notes / presentation prep
 Help.txt
+Help.md
+Help2.md
+Code.md
+
+# Scratch / local duplicates
+notebooks/Test.py
+official_dataset/
+official_dataset.zip
+4022262035-4021262131.zip
+*.zip
+
+# Extra local reports
+report/Network.pdf
 
 # LaTeX source and build artifacts (only PDF goes to GitHub)
 report/*.tex
