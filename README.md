@@ -1,5 +1,7 @@
 # Vehicle Brand Classifier
 
+![CI](https://github.com/ArmanBjr/vehicle-brand-classifier/actions/workflows/ci.yml/badge.svg)
+
 Project 1 for **Fundamentals of Computational Intelligence** at Ferdowsi University of Mashhad (FUM). Multiclass classification of car manufacturers from UK used car listing data, using **SVM** and **Decision Tree** with a leakage-safe preprocessing pipeline.
 
 > Course report: [`report/report.pdf`](report/report.pdf)
