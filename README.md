@@ -2,7 +2,7 @@
 
 Project 1 for **Fundamentals of Computational Intelligence** at Ferdowsi University of Mashhad (FUM). Multiclass classification of car manufacturers from UK used car listing data, using **SVM** and **Decision Tree** with a leakage-safe preprocessing pipeline.
 
-> Course report: [`report/4022262035-4021262131-AmirHoseinAbolfazli-ArmanBijari.pdf`](report/4022262035-4021262131-AmirHoseinAbolfazli-ArmanBijari.pdf)
+> Course report: [`report/report.pdf`](report/report.pdf)
 
 ## Results
 
@@ -48,7 +48,7 @@ Python · scikit-learn · imbalanced-learn (SMOTE) · pandas · seaborn
 
 ## Authors & License
 
-**AmirHosein Abolfazli** (4022262035) · **Arman Bijari** (4021262131) — [ArmanBjr](https://github.com/ArmanBjr)
+**AmirHosein Abolfazli** · **Arman Bijari** — [ArmanBjr](https://github.com/ArmanBjr)
 
 **Professor:** Dr. Fazl Ersi
 
