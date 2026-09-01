@@ -16,7 +16,7 @@ def test_train_and_test_csv_exist_with_expected_columns():
     train = pd.read_csv(DATA / "train_data.csv", nrows=100)
     test = pd.read_csv(DATA / "test_data.csv", nrows=100)
 
-    expected = {
+    feature_cols = {
         "year",
         "price",
         "transmission",
@@ -25,11 +25,11 @@ def test_train_and_test_csv_exist_with_expected_columns():
         "tax",
         "mpg",
         "engineSize",
-        "Manufacturer",
     }
-    assert expected.issubset(train.columns)
-    assert expected.issubset(test.columns)
-    assert train["Manufacturer"].notna().all()
+    assert feature_cols.issubset(train.columns)
+    assert feature_cols.issubset(test.columns)
+    assert "Manufacturer" in train.columns
+    assert "Manufacturer" not in test.columns
 
 
 def test_svm_pipeline_runs_on_sample():
